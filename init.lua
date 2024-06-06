@@ -210,9 +210,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
-function saveShada()
-end
-
 vim.api.nvim_create_autocmd({ 'VimEnter', 'DirChanged' }, {
   desc = 'Set shada to save global marks',
   group = vim.api.nvim_create_augroup('kickstart-shada', { clear = true }),
@@ -223,6 +220,9 @@ vim.api.nvim_create_autocmd({ 'VimEnter', 'DirChanged' }, {
     end
     if vim.fn.filereadable('.vim_session') == 1 then
       vim.cmd('source .vim_session')
+      vim.fn.timer_start(10, function()
+        vim.cmd('edit')
+      end)
       vim.fn.timer_start(30000, function() vim.cmd('mksession! .vim_session') end)
     end
   end,
@@ -280,6 +280,9 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+    config = function()
+      vim.keymap.set('n', '<leader>gs', require('gitsigns').stage_hunk, { desc = '[G]it [S]tage' })
+    end,
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -485,6 +488,8 @@ require('lazy').setup({
           local map = function(keys, func, desc)
             vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
+
+          vim.keymap.set('i', '<C-D>', vim.lsp.buf.signature_help, { buffer = event.buf, desc = 'LSP: Signature Help' })
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
