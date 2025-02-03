@@ -16,13 +16,33 @@ return {
 	},
 	{
 		'CopilotC-Nvim/CopilotChat.nvim',
-		branch = "canary",
+		branch = "main",
 		dependencies = {
 		  { "github/copilot.vim" },
 		  { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
 		},
 		config = function()
-			require("CopilotChat").setup({})
+			local cc = require("CopilotChat")
+			cc.setup({})
+			vim.keymap.set('n', '<leader>c', cc.open, { noremap = false })
 		end,
-	}
+	},
+	{ 'jonarrien/telescope-cmdline.nvim',
+		keys = {
+			{'Q', '<cmd>Telescope cmdline<cr>', desc = "Cmdline"},
+		},
+	},
+	{ 'EmranMR/tree-sitter-blade',
+		config = function()
+			local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+			parser_config.blade = {
+			  install_info = {
+				url = "https://github.com/EmranMR/tree-sitter-blade",
+				files = { "src/parser.c" },
+				branch = "main",
+			  },
+			  filetype = "blade"
+			}
+		end
+	},
 }

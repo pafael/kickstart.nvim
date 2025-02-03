@@ -263,7 +263,10 @@ require('lazy').setup({
       rocks = { enabled = false },
     },
     config = function()
-      vim.keymap.set('n', '<leader>gs', require('gitsigns').stage_hunk, { desc = '[G]it [S]tage' })
+      local gs = require('gitsigns')
+      vim.keymap.set('n', '<leader>gt', gs.stage_hunk, { desc = '[G]it [S]tage' })
+      vim.keymap.set('n', '<leader>gp', gs.preview_hunk, { desc = '[G]it [P]review Hunk' })
+      require('gitsigns').setup()
     end,
   },
 
@@ -411,6 +414,15 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
 
+      local delete_buf_mapping = function(prompt_bufnr, map)
+          local delete_buf = function()
+            local picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
+            picker:delete_selection(function(selection) vim.api.nvim_buf_delete(selection.bufnr, { force = true }) end)
+          end
+        map('n', '<c-d>', delete_buf, { noremap = true, silent = true })
+        return true
+      end
+
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
@@ -423,8 +435,11 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set( 'n', '<leader>fd', function() require('telescope').extensions.file_browser.file_browser({ hidden = true, grouped = true, cwd = '%:p:h' }) end, { desc = '[ ] Find existing buffers' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set( 'n', '<leader>fd', function() require('telescope').extensions.file_browser.file_browser({ hidden = true, grouped = true, cwd = '%:p:h' }) end, { desc = '' })
+      vim.keymap.set( 'n', '<leader>fa', function() require('telescope').extensions.file_browser.file_browser({ hidden = false, grouped = true, cwd = '%:p:h' }) end, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader><leader>', function() builtin.buffers({attach_mappings = delete_buf_mapping}) end, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = '[G]it [S]tatus' })
+      vim.keymap.set('n', '<leader>ts', builtin.treesitter, { desc = '[T]ree[S]itter' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -873,7 +888,7 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  -- { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -942,7 +957,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'jsdoc', 'go', 'javascript', 'comment', 'sql', 'php', 'php_only' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {

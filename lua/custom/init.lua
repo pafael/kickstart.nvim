@@ -1,5 +1,7 @@
 local autosession_set = false
 
+vim.opt.foldenable = false
+
 vim.api.nvim_create_autocmd({ 'VimEnter', 'DirChanged' }, {
   desc = 'Set shada to save global marks',
   group = vim.api.nvim_create_augroup('kickstart-shada', { clear = true }),
@@ -9,12 +11,6 @@ vim.api.nvim_create_autocmd({ 'VimEnter', 'DirChanged' }, {
       return
     end
     autosession_set = true
-    local function echo_with_clear(message)
-      print(message)
-      vim.fn.timer_start(1000, function()
-        vim.cmd('redraw')
-      end)
-    end
 
     if vim.fn.filereadable('.vim_shada') == 1 then
       vim.cmd('rshada! .vim_shada')
@@ -25,13 +21,11 @@ vim.api.nvim_create_autocmd({ 'VimEnter', 'DirChanged' }, {
         vim.cmd('edit')
       end)
     end
-    vim.fn.timer_start(45000, function() 
-      vim.cmd('wshada! .vim_shada') 
-      echo_with_clear("Saved shada") 
+    vim.fn.timer_start(45000, function()
+      vim.cmd('wshada! .vim_shada')
     end, { ['repeat'] = -1 })
-    vim.fn.timer_start(30000, function() 
-      vim.cmd('mksession! .vim_session') 
-      echo_with_clear("Saved session")
+    vim.fn.timer_start(30000, function()
+      vim.cmd('mksession! .vim_session')
     end, { ['repeat'] = -1 })
   end,
 })
@@ -57,3 +51,10 @@ end
 
 vim.keymap.set('n', '<leader>o', jump_to_previous_buffer, { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>i', jump_to_next_buffer, { noremap = true, silent = true })
+
+vim.api.nvim_create_augroup('BladeFiletypeRelated', { clear = true })
+vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'}, {
+  pattern = '*.blade.php',
+  command = 'setlocal filetype=blade',
+  group = 'BladeFiletypeRelated',
+})
