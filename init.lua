@@ -219,7 +219,6 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-
 require("custom")
 
 -- [[ Configure and install plugins ]]
@@ -262,9 +261,10 @@ require('lazy').setup({
       rocks = { enabled = false },
     },
     config = function()
-      local gs = require('gitsigns')
-      vim.keymap.set('n', '<leader>gt', gs.stage_hunk, { desc = '[G]it [S]tage' })
-      vim.keymap.set('n', '<leader>gp', gs.preview_hunk, { desc = '[G]it [P]review Hunk' })
+      local gs = require 'gitsigns'
+      vim.keymap.set('n', 'gt', gs.stage_hunk, { desc = '[G]it S[t]age' })
+      vim.keymap.set('n', 'gp', gs.preview_hunk, { desc = '[G]it [P]review Hunk' })
+      vim.keymap.set('n', 'gn', function() gs.nav_hunk('next') end, { desc = '[G]it [N]ext Hunk' })
       require('gitsigns').setup()
     end,
   },
@@ -330,7 +330,7 @@ require('lazy').setup({
       -- Document existing key chains
       spec = {
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
-        { '<leader>d', group = '[D]ocument' },
+        { '<leader>d', group = '[D]efinition float' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
@@ -416,10 +416,12 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'ui-select')
 
       local delete_buf_mapping = function(prompt_bufnr, map)
-          local delete_buf = function()
-            local picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
-            picker:delete_selection(function(selection) vim.api.nvim_buf_delete(selection.bufnr, { force = true }) end)
-          end
+        local delete_buf = function()
+          local picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
+          picker:delete_selection(function(selection)
+            vim.api.nvim_buf_delete(selection.bufnr, { force = true })
+          end)
+        end
         map('n', '<c-d>', delete_buf, { noremap = true, silent = true })
         return true
       end
@@ -429,16 +431,24 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [f]iles' })
-      vim.keymap.set('n', '<leader>sa', function() return builtin.find_files({no_ignore = true}) end, { desc = '[S]earch [All] Files' })
+      vim.keymap.set('n', '<leader>sa', function()
+        return builtin.find_files { no_ignore = true }
+      end, { desc = '[S]earch [All] Files' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set( 'n', '<leader>fd', function() require('telescope').extensions.file_browser.file_browser({ hidden = true, grouped = true, cwd = '%:p:h' }) end, { desc = '' })
-      vim.keymap.set( 'n', '<leader>fa', function() require('telescope').extensions.file_browser.file_browser({ hidden = false, grouped = true, cwd = '%:p:h' }) end, { desc = '[ ] Find existing buffers' })
-      vim.keymap.set('n', '<leader><leader>', function() builtin.buffers({attach_mappings = delete_buf_mapping}) end, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>fd', function()
+        require('telescope').extensions.file_browser.file_browser { hidden = true, grouped = true, cwd = '%:p:h' }
+      end, { desc = '' })
+      vim.keymap.set('n', '<leader>fa', function()
+        require('telescope').extensions.file_browser.file_browser { hidden = false, grouped = true, cwd = '%:p:h' }
+      end, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader><leader>', function()
+        builtin.buffers { attach_mappings = delete_buf_mapping }
+      end, { desc = '[ ] Find existing buffers' })
       vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = '[G]it [S]tatus' })
       vim.keymap.set('n', '<leader>ts', builtin.treesitter, { desc = '[T]ree[S]itter' })
 
@@ -539,6 +549,7 @@ require('lazy').setup({
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
+          local tel = require 'telescope.builtin'
 
           vim.keymap.set('i', '<C-D>', vim.lsp.buf.signature_help, { buffer = event.buf, desc = 'LSP: Signature Help' })
           -- Floating window for diagnostic under cursor
@@ -548,19 +559,19 @@ require('lazy').setup({
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gd', tel.lsp_definitions, '[G]oto [D]efinition')
 
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('gr', tel.lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gI', tel.lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+          map('<leader>D', tel.lsp_type_definitions, 'Type [D]efinition')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
@@ -568,7 +579,7 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          map('<leader>ws', tel.lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
@@ -735,14 +746,14 @@ require('lazy').setup({
     opts = {
       notify_on_error = false,
       --format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-       -- local disable_filetypes = { c = true, cpp = true, js = true, svelte = true }
-        --return {
-         -- timeout_ms = 500,
-          --lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-        --}
+      -- Disable "format_on_save lsp_fallback" for languages that don't
+      -- have a well standardized coding style. You can add additional
+      -- languages here or re-enable it for the disabled ones.
+      -- local disable_filetypes = { c = true, cpp = true, js = true, svelte = true }
+      --return {
+      -- timeout_ms = 500,
+      --lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+      --}
       --end,
       formatters_by_ft = {
         lua = { 'stylua' },
@@ -911,7 +922,7 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup({
+      require('mini.surround').setup {
         custom_surroundings = nil,
         highlight_duration = 500,
         mappings = {
@@ -923,13 +934,13 @@ require('lazy').setup({
           replace = 'Kr',
           update_n_lines = 'Kn',
           suffix_last = 'l',
-          suffix_next = 'n'
+          suffix_next = 'n',
         },
         n_lines = 20,
         respect_selection_type = false,
         search_method = 'cover',
         silent = false,
-      })
+      }
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -940,8 +951,10 @@ require('lazy').setup({
         use_icons = vim.g.have_nerd_font,
         content = {
           active = nil,
-          inactive = function() return "%f" end,
-        }
+          inactive = function()
+            return '%f'
+          end,
+        },
       }
 
       -- You can configure sections in the statusline by overriding their
@@ -962,7 +975,26 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'jsdoc', 'go', 'javascript', 'comment', 'sql', 'php', 'php_only' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'jsdoc',
+        'go',
+        'javascript',
+        'comment',
+        'sql',
+        'php',
+        'php_only',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {

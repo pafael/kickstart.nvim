@@ -51,6 +51,8 @@ end
 
 vim.keymap.set('n', '<leader>o', jump_to_previous_buffer, { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>i', jump_to_next_buffer, { noremap = true, silent = true })
+vim.keymap.set('n', '<C-n>', '<cmd>cnext<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<C-p>', '<cmd>cprevious<CR>', { noremap = true, silent = true })
 
 vim.api.nvim_create_augroup('BladeFiletypeRelated', { clear = true })
 vim.api.nvim_create_autocmd({'BufNewFile', 'BufRead'}, {
