@@ -101,8 +101,17 @@ return {
 	  opts = {
 		-- add any opts here
 		-- for example
-		provider = "openai",
+		provider = "ollama",
 		providers = {
+			ollama = {
+			  endpoint = "http://localhost:11434", -- your ollama server endpoint
+			  model = "devstral:24b", -- your desired model (or use llama3.2-70b, etc.)
+			  extra_request_body = {
+				  temperature = 0,
+				  max_completion_tokens = 8192, -- Increase this to include reasoning tokens (for reasoning models)
+				  --reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
+			  },
+			},
 			openai = {
 			  endpoint = "https://api.openai.com/v1",
 			  model = "gpt-4o", -- your desired model (or use gpt-4o, etc.)
@@ -150,5 +159,11 @@ return {
 		  ft = { "markdown", "Avante" },
 		},
 	  },
+	},
+	{
+	  "inzoiniac/renpy-syntax.nvim",
+	  config = function()
+		require("renpy-syntax").setup()
+	  end,
 	}
 }

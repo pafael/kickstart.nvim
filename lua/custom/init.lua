@@ -8,16 +8,14 @@ vim.api.nvim_create_autocmd({ 'VimEnter', 'DirChanged' }, {
   desc = 'Set shada to save global marks',
   group = vim.api.nvim_create_augroup('kickstart-shada', { clear = true }),
   callback = function()
-
-    if(autosession_set) then
-      return
-    end
+    if(autosession_set) then return end
     autosession_set = true
+	local opening_file = vim.fn.argc() > 0
 
     if vim.fn.filereadable('.vim_shada') == 1 then
       vim.cmd('rshada! .vim_shada')
     end
-    if vim.fn.filereadable('.vim_session') == 1 then
+    if vim.fn.filereadable('.vim_session') == 1 and not opening_file then
       vim.cmd('source .vim_session')
       vim.fn.timer_start(10, function()
         vim.cmd('edit')
