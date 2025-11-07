@@ -3,6 +3,7 @@ local autosession_set = false
 vim.opt.foldenable = false
 -- Flickering issue
 vim.g._ts_force_sync_parsing = true
+vim.opt.foldmethod = 'indent'
 
 vim.api.nvim_create_autocmd({ 'VimEnter', 'DirChanged' }, {
   desc = 'Set shada to save global marks',

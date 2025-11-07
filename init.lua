@@ -611,7 +611,7 @@ require('lazy').setup({
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
-          map('gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
+          map('gs', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
 
           -- Fuzzy find all the symbols in your current workspace.
           --  Similar to document symbols, except searches over your entire project.
@@ -967,6 +967,7 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
+      --
       require('mini.surround').setup {
         custom_surroundings = nil,
         highlight_duration = 500,
@@ -974,7 +975,7 @@ require('lazy').setup({
           add = 'Ka',
           delete = 'Kd',
           find = 'Kf',
-          find_list = 'KF',
+          find_left = 'KF',
           highlight = 'Kh',
           replace = 'Kr',
           update_n_lines = 'Kn',
@@ -986,6 +987,7 @@ require('lazy').setup({
         search_method = 'cover',
         silent = false,
       }
+      --
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,

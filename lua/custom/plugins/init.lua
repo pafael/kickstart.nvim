@@ -24,7 +24,6 @@ return {
 				['css'] = true,
 				['scss'] = true,
 				['json'] = true,
-				['markdown'] = true,
 				['sh'] = true,
 				['vim'] = true,
 				['c'] = true,
@@ -40,9 +39,6 @@ return {
 				['dockerfile'] = true,
 				['make'] = true,
 				['cmake'] = true,
-				['xml'] = true,
-				['toml'] = true,
-				['ini'] = true,
 				['svelte'] = true,
 			}
 		end,
@@ -69,15 +65,16 @@ return {
 			})
 		end,
 	},
-	{ 'jonarrien/telescope-cmdline.nvim',
+	{
+		'jonarrien/telescope-cmdline.nvim',
 		keys = {
 			{'Q', '<cmd>Telescope cmdline<cr>', desc = "Cmdline"},
 		},
 	},
-	{ 'EmranMR/tree-sitter-blade',
+	{
+		'EmranMR/tree-sitter-blade',
 		config = function()
-			local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-			parser_config.blade = {
+			require "nvim-treesitter.parsers".blade = {
 			  install_info = {
 				url = "https://github.com/EmranMR/tree-sitter-blade",
 				files = { "src/parser.c" },
@@ -87,7 +84,8 @@ return {
 			}
 		end
 	},
-	{ 'ggandor/leap.nvim',
+	{
+		'ggandor/leap.nvim',
 		config = function()
 			vim.keymap.set({'n'}, '<RIGHT>', '<Plug>(leap-forward)')
 			vim.keymap.set({'n'}, '<LEFT>', '<Plug>(leap-backward)')
@@ -99,13 +97,14 @@ return {
 	  event = "VeryLazy",
 	  version = false, -- Never set this value to "*"! Never!
 	  opts = {
+		mode = "agentic",
 		-- add any opts here
 		-- for example
 		provider = "ollama",
 		providers = {
 			ollama = {
 			  endpoint = "http://localhost:11434", -- your ollama server endpoint
-			  model = "devstral:24b", -- your desired model (or use llama3.2-70b, etc.)
+			  model = "gpt-oss:20b", -- your desired model (or use llama3.2-70b, etc.)
 			  extra_request_body = {
 				  temperature = 0,
 				  max_completion_tokens = 8192, -- Increase this to include reasoning tokens (for reasoning models)
@@ -165,5 +164,41 @@ return {
 	  config = function()
 		require("renpy-syntax").setup()
 	  end,
+	},
+	{
+	  "folke/noice.nvim",
+		event = "VeryLazy",
+		dependencies = {
+		  "MunifTanjim/nui.nvim",
+		  "rcarriga/nvim-notify",
+		},
+		config = function()
+			require("noice").setup({
+			  lsp = {
+				-- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+				override = {
+				  ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+				  ["vim.lsp.util.stylize_markdown"] = true,
+				  ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+				},
+			  },
+			  -- you can enable a preset for easier configuration
+			  presets = {
+				bottom_search = true, -- use a classic bottom cmdline for search
+				command_palette = true, -- position the cmdline and popupmenu together
+				long_message_to_split = true, -- long messages will be sent to a split
+				inc_rename = false, -- enables an input dialog for inc-rename.nvim
+				lsp_doc_border = false, -- add a border to hover docs and signature help
+			  },
+			  views = {
+					cmdline_popup = {
+						position = {
+							row = 20,
+							col = "50%",
+						}
+					},
+			  }
+			})
+		end
 	}
 }
